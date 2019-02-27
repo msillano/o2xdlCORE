@@ -4,4 +4,6 @@ CORE uses a tree of o2x:object to represent complex data structures and to perfo
 
 o2xdl CORE reference: http://www.o2xdl.org/3.0/CORE/doc/core-02.html
 
+o2xdl CORE schema: http://www.o2xdl.org/3.0/o2xdl-core.xsd.html
+
 In this repository last version of some tools used in o2xdl CORE.
