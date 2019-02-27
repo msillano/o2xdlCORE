@@ -1,0 +1,495 @@
+<!DOCTYPE 
+html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+lang="en">
+<!--  
+/**
+ * @file
+ * Jscript application, implements <i><b><span style="font-family: Monotype Corsiva; font-size: x-large">R</span>ealize()</b></i>.
+ * This is a standalone application to realize any o2x:object.
+ * Utilizes some standard defaults and local files, to semplify the use.<br>
+ * @note
+ * The input o2x:object is validated against the o2xdl-core schema.
+ * @see jrealize.java for a java implementation, more flexible.
+ * @author M. Sillano (marco.sillano(at)gmail.com) &copy;2006-2019 M.Sillano
+ * @version 3.0 2019/02/12  m.s.
+ */ -->
+<head>
+<!--
+ <HTA:APPLICATION 
+     ID="o2xR30HTA"  
+     APPLICATIONNAME="o2xdl Realize() 3.0"
+     BORDER="thin"
+     BORDERSTYLE="normal"
+     CAPTION="yes"
+     ICON="images/logo03B.gif"
+     MAXIMIZEBUTTON="no"
+     MINIMIZEBUTTON="no"
+     SHOWINTASKBAR="yes"
+     SINGLEINSTANCE="yes"
+     SYSMENU="yes"
+     VERSION="3.0" />
+-->
+  <meta name="generator" content=
+  "HTML Tidy for HTML5 for Windows version 5.6.0" />
+  <meta name="DESCRIPTION" content=
+  "o2xdl CORE Realize() 3.0" />
+  <title>o2xdl Realize() 3.0</title>
+  <meta http-equiv="Content-type" content=
+  "text/html; charset=utf-8" />
+  <style type="text/css" media="all">
+     @import "./../css/ezine.css";
+  </style>
+  <script language="vbscript">
+  //<![CDATA[
+   window.moveTo 5000,5000 
+  //]]>
+  </script>
+  <script language="vbscript">
+  //<![CDATA[
+  window.resizeto 880,500
+  window.moveTo 50,50
+  //]]>
+  </script>
+  <script language="JavaScript" type="text/javascript">
+  //<![CDATA[
+  var OUTPUT_STYLE_PARAM = "HTML"; 
+  /**
+  * Data definition: schema or DTD.
+  *  Overwrite default in o2xSisFile if not 'none'
+  */
+  var Dta_Def_used    = "schema"; 
+  /**
+  *  Used context, selects output (and methods).
+  *  Overwrite default context in o2xSisFile if not 'none'
+  */
+  var ENVIRON_CONTEXT = "none"; 
+
+  /** local */
+  var ENGINE_PARAM = "Simple Core Engine 3.0 in JScript"; 
+
+  /// input o2x:object from editor
+  var xF0 = ""; 
+  /// temporary file
+  var xF1 = "C:\\temp\\core3_A.TMP";  
+  /// temporary file
+  var xF2 = "C:\\temp\\core3_B.XML";   
+  /// temporary file
+  var xF3 = "C:\\temp\\core3_C.XSL";  
+  /// result file.
+  /// from UI or from the 'target' attribute in o2x:object (optional).
+  var xF4 = ""; 
+  ///  o2xdl environment file with defaults.
+  var o2xSisFile = "C:\\o2xdl-30\\CORE\\o2xdl-system.xml";
+  // transformations
+  var xT1 = "C:\\o2xdl-30\\CORE\\xslt\\coreT001.xsl";
+  var xT2 = "C:\\o2xdl-30\\CORE\\xslt\\coreT002.xsl";
+  var xT3 = "C:\\o2xdl-30\\CORE\\xslt\\coreT003.xsl";
+
+  /**
+  *  Implementation of core engine in JavaScript.
+  *  Standalone application (Windows).
+  *  Realizes an o2x:object tree, doing 4 Transformations: <br>
+  *   - <tt>coreT001.xsl(o2x:object)</tt>     prooduces <tt>core_12_A.TMP:</tt> resolves context and compositions
+  *   - <tt>coreT002.xsl(core_12_A.TMP)</tt>  prooduces <tt>core_12_B.XML:</tt> data-driver, only data and parameter structures
+  *   - <tt>coreT003.xsl(core_12_A.TMP) </tt> prooduces <tt>core_12_C.XSL:</tt> only XSTL from methods
+  *   - <tt>core_12_C.xsl(core_12_B.XML)</tt> prooduces <tt>core_12_D.HTML:</tt> final result
+  */
+  function fnCoreTransformObject() {
+
+   fnClearDocument();
+   if (document.getElementById("asURI").checked  == true){
+      xF0 = document.all.item("myURI").value;
+          } else {
+      xF0 = document.all.item("myXML").value;
+          }
+   if (xF0.length <4) {
+        document.all("res1m").innerHTML = "<font color='red'><b>o2xdl object file not valid</"+"b></"+"font>";
+        document.all("res2m").innerHTML = "<i>File:</"+"i><br/>" + document.all.item("myXML").value + "<br/>";
+        return;
+        }
+   //  get the value from UI, and change extension
+   xF4 = document.all.item("outXML").value;
+   xF4 = xF4.replace(/\.\w*$/,"");
+   if (xF4.length <3) {
+        document.all("res1m").innerHTML = "<font color='red'><b>Target file not valid</"+"b><\/font>";
+        document.all("res2m").innerHTML = "<i>File:</"+"i><br/>" + document.all.item("outXML").value + "<br/>";
+        return;
+        }
+    if (radio[0].checked) { OUTPUT_STYLE_PARAM = "HTML";
+                        xF4 = xF4+".html";}
+    if (radio[1].checked) { OUTPUT_STYLE_PARAM = "XMLautoInclude"; 
+                        xF4 = xF4+".xml";}
+    if (radio[2].checked) { OUTPUT_STYLE_PARAM = "XMLauto"; 
+                        xF4 = xF4+".xml";}
+	// xF4 can change, if 'target' attribute in o2x:object is set
+    // temp files: make dirs or delete olds.
+        var fsu = new ActiveXObject("Scripting.FileSystemObject");
+        if (!(fsu.FolderExists("c:\\temp"))) {
+            fsu.CreateFolder("c:\\temp");
+        } else {
+            if (fsu.FileExists(xF1))
+                    fsu.GetFile(xF1).Delete();
+            if (fsu.FileExists(xF2))
+                    fsu.GetFile(xF2).Delete();
+            if (fsu.FileExists(xF3))
+                    fsu.GetFile(xF3).Delete();
+            if (fsu.FileExists(xF4))
+                    fsu.GetFile(xF4).Delete();       
+        }
+    //  new DOMDocument: load XML ( to validate it and to get "target" attribute, if any)
+        try {
+            var Xdom = new ActiveXObject("MSXML2.FreeThreadedDOMDocument.6.0");
+        } catch (e) {
+            document.all("res1m").innerHTML ="<font color='red'><b>MSXML ERROR</"+"b></"+"font>";
+            document.all("res2m").innerHTML = e + " = " + e.description + " new  MSXML2.DOMDocument (for XML)";
+            return;
+        }
+        Xdom.async = false;
+        Xdom.validateOnParse = true;
+        Xdom.resolveExternals = true;
+      // to validate o2x:objects build a cache for the schemas.
+        try {
+           var cache = new ActiveXObject("Msxml2.XMLSchemaCache.6.0");
+        } catch (e) {
+            document.all("res1m").innerHTML ="<font color='red'><b>MSXML ERROR</"+"b></"+"font>";
+            document.all("res2m").innerHTML = e + " = " + e.description + " new  XMLSchemaCache (for XML)";
+           return;
+        }
+  //  object: validated using CORE schema:
+  //    cache.add( "http://www.o2xdl.org/3.0/o2xdl", "http://www.o2xdl.org/3.0/o2xdl-schema.xsd");
+        cache.add( "http://www.o2xdl.org/3.0/o2xdl", "http://www.o2xdl.org/3.0/o2xdl-core.xsd");
+        cache.validate();
+       
+        Xdom.schemas = cache;
+        Xdom.setProperty("UseInlineSchema", true);
+        Xdom.load(xF0);
+        if (Xdom.parseError != 0) {
+            HandleError(Xdom);
+            return;
+        }
+        // validate ok, now acces target attribute.
+        // select o2x: namespaces
+        var ns = "xmlns:o2x='http://www.o2xdl.org/3.0/o2xdl'";
+        Xdom.setProperty("SelectionNamespaces", ns);
+        // get target attribute: overwrite local  
+        var nodeTest = Xdom.selectSingleNode("o2x:object");
+        if (nodeTest != null)
+            if (nodeTest.getAttribute("target") != null) {
+			    // if 'target' exists, owerwrite xF4 (without changes)
+                xF4 = nodeTest.getAttribute("target");
+            }
+    //============= processing operations: 4 transformations    
+        if (fnOneCoreTransform(xF0, xT1, xF1, o2xSisFile))
+            if (fnOneCoreTransform(xF1, xT2, xF2, o2xSisFile))
+                if (fnOneCoreTransform(xF1, xT3, xF3, o2xSisFile))
+                    if (fnOneCoreTransform(xF2, xF3, xF4, o2xSisFile)) {
+                    // ok, final
+					  document.all("res2m").innerHTML ='<b><i><span style="font-family: Monotype Corsiva; font-size: x-large">R</'+'span>ealize()</'+'i> done ok.</'+'b>';
+					  if (radio[0].checked) {
+								window.open("file:////"+xF4);
+						} else {
+								showSource(xF4);
+						}
+					}
+        
+  }
+ 
+ /**
+  * One transformation with parameters
+  * Base function used 4 times.
+  */
+  function fnOneCoreTransform(aXML, aXSLT, aTarget, o2xSisFile) {
+      //  new DOMDocument 
+    try {
+        var x = new ActiveXObject("MSXML2.FreeThreadedDOMDocument.6.0");
+    } catch (e) {
+            document.all("res1m").innerHTML ="<font color='red'><b>MSXML ERROR</"+"b></"+"font>";
+            document.all("res2m").innerHTML = e + " = " + e.description + " new  MSXML2.DOMDocument (for XML)";
+       return (false);
+    }
+    //........... load XML
+    x.async = false;
+    x.validateOnParse = false;
+    x.resolveExternals = true;
+    x.load(aXML);
+
+    if (x.parseError != 0) {
+        HandleError(x);
+        return (false);
+    }
+     //  new DOMDocument: load  XSLT
+    try {
+        var y = new ActiveXObject("Msxml2.FreeThreadedDOMDocument.6.0");
+    } catch (e) {
+            document.all("res1m").innerHTML ="<font color='red'><b>MSXML ERROR</"+"b></"+"font>";
+            document.all("res2m").innerHTML = e + " = " + e.description + " new  MSXML2.DOMDocument (for XSLT)";
+        return (false);
+    }
+    y.async = false;
+    y.validateOnParse = false;
+    y.resolveExternals = true;
+    y.setProperty("AllowDocumentFunction", true);
+    y.load(aXSLT);
+    if (y.parseError != 0) {
+        HandleError(y);
+        return (false);
+    }
+    // uses createProcessor() to add parameters
+     try {
+      var xslt = new ActiveXObject("Msxml2.XSLTemplate.6.0");
+    } catch (e) {
+            document.all("res1m").innerHTML ="<font color='red'><b>MSXML ERROR</"+"b></"+"font>";
+            document.all("res2m").innerHTML = e + " = " + e.description + " new  MSXML2.XSLTemplate (for XSLT)";
+         return (false);
+    }
+      xslt.stylesheet = y;
+
+    var xslProc = xslt.createProcessor();
+    xslProc.input = x;
+    // .... defined, but not jet used
+    xslProc.addParameter("DATA_STRICT",  "false");
+    xslProc.addParameter("PARAM_STRICT", "false");
+    xslProc.addParameter("CORE_STRICT",  "false");
+    // .... used params - version
+    xslProc.addParameter("DATA_DEFINITION", Dta_Def_used); //schema
+    xslProc.addParameter("ENGINE", ENGINE_PARAM);
+    xslProc.addParameter("XSLTengine", "MSXML 6.0");
+    // .... used params - dynamics
+	//  user context
+    xslProc.addParameter("env_file", o2xSisFile);
+    if ( document.all.item("cnt").value == ""){ 
+           xslProc.addParameter("environ_context", ENVIRON_CONTEXT);
+//		   window.alert(" use fix ");
+        } else {
+           xslProc.addParameter("environ_context", document.all.item("cnt").value);
+//			   window.alert(" use user ");
+	     }
+    xslProc.addParameter("source", aXML.replace(/^.*[\\/]([^\\/]*)\.\w*$/, "$1"));
+	// get file name
+    xslProc.addParameter("output_fname", aTarget.replace(/^.*[\\/]([^\\/]*)\.\w*$/, "$1"));
+    xslProc.addParameter("OUTPUT_STYLE", OUTPUT_STYLE_PARAM);
+    var d = new Date(); //Crea oggetto Date.
+    xslProc.addParameter("now_time", d.toLocaleString());
+
+    // now transforms
+    try {
+        xslProc.transform();
+    } catch (e) {
+            document.all("res1m").innerHTML ="<font color='red'><b>TRANSFORM ERROR:</"+"b></"+"font>";
+            document.all("res2m").innerHTML = e + " = " + e.description + " Transforming";
+            return (false);
+    }
+   // output files 
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    try {
+        var tf = fso.CreateTextFile(aTarget, true, true);
+    } catch (e) {
+         document.all("res1m").innerHTML ="<font color='red'><b>OUTPUT ERROR:</"+"b></"+"font>";
+         document.all("res2m").innerHTML = " can't create file " + aTarget;
+         return (false);
+    }
+    tf.Write(xslProc.output);
+    tf.Close();
+    //  done ok
+   var log =  document.all("res1m").innerHTML + "Created file " + aTarget+"<br />";
+   document.all("res1m").innerHTML = log;
+   return (true);
+  }
+ 
+ /**
+  * Format errorcode
+  */
+  function FormatErrorCode(rc) {
+    if (rc < 0) rc = (65536 * 65536) + rc;
+    return "0x" + rc.toString(16).toUpperCase();
+  }
+  
+  /**
+  * Formats DOMDocument error message
+  */
+  function HandleError(xmldoc) {
+    var err = xmldoc.parseError;
+    var msg = " lime: " + err.line + " pos: " + err.linepos + "<br />";
+    msg += "error " + FormatErrorCode(err.errorCode);
+    msg += ": " + err.reason + " in " + err.url;
+
+    document.all("res1m").innerHTML ="<font color='red'><b>PARSE ERROR:<\/b></"+"font>";
+    document.all("res2m").innerHTML = msg;
+  } 
+
+  /**
+  * Update output file when input change
+  */
+function fnInputChanged(){
+document.all.item("outXML").value = document.all.item("myXML").value +"_out.xml";
+}
+
+ /**
+  * function for edit-list
+  */
+function copycnt(){
+  document.getElementById('cnt').value = document.getElementById('sel').options[document.getElementById('sel').selectedIndex].value
+}
+
+  /**
+  * Clears UI messages
+  */
+ function fnClearDocument() {
+         document.all("res1m").innerHTML = "";
+         document.all("res2m").innerHTML = "";
+  }
+
+ /**
+  * Shows source in browser
+  */
+function showSource(hfile){
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var f = fso.OpenTextFile(hfile, 1, false,-1);
+    var source = f.ReadAll();
+    //now we need to escape the html special chars, javascript has escape
+    //but this does not do what we want
+    source = (source.replace(/</g, "&lt;")).replace(/>/g, "&gt;") ;
+    //now we add <pre> tags to preserve whitespace
+    source = "<html><body><pre>"+source+"</"+"pre></"+"body></"+"html>";
+    //now open the window and set the source as the content
+    var sourceWindow = window.open('','_blank','height=800,width=800,scrollbars=1,resizable=1');
+    sourceWindow.document.write(source);
+    sourceWindow.document.close(); //close the document for writing, not the window
+    //give source window focus
+    if(window.focus) sourceWindow.focus();
+  } 
+  //]]>
+  </script>
+</head>
+<body>
+  <div id="maincontainer">
+    <div id="topsection" style="padding:0">
+      <span class="title1"><img style=
+      "width: 99px; height: 44px;" alt="o2xdl" src=
+      "./../images/logo_02xdl_90x40.png" /></span>
+      <img style="width: 82px; height: 1px;" alt="" src=
+      "./../images/transparent.gif" /> <span class=
+      "subtitle">The OO power for XML</span>
+    </div>
+    <div id="contentwrapper">
+      <div id="contentcolumn">
+        <div class="text">
+          <h1><i><span style=
+          "font-family: Monotype Corsiva; font-size: xx-large">
+          R</span>ealize(o2x:object)</i></h1>
+          <div class="columnleft">
+            <h4>Options</h4>
+            <div align="right">
+              <input type="button" style=
+              "background-color:#AFC7DD" onclick=
+              "fnCoreTransformObject()" align="right"
+              value="Realize()" />&nbsp; &nbsp;
+            </div>
+            <div align="left">
+              <b>o2x:object:</b><br />
+              <input type="file" name="myXML" size="28"
+              value=
+              "C:\o2xdl-30\CORE\samples\minimal_object01.o2xSobj"
+              onclick="fnClearDocument()" onchange="fnInputChanged()" /><br />
+              <br />
+              <input type="checkbox" id="asURI" name=
+              "asURI" /><label for=
+              "asURI"><b>URI</b>&nbsp;&nbsp;&nbsp;&nbsp;</label><input type="text"
+              name="myURI" size="30" value=
+              "http://www.o2xdl.org/3.0/CORE/samples/minimal_object01.o2xSobj" /><br />
+
+              <b>context:</b><br />
+              <select id="sel" style=
+              "width: 200px; float: left" onchange=
+              "copycnt()">
+                <option value="">
+                </option>
+                <option value="default">
+                  default
+                </option>
+                <option value="special">
+                  special
+                </option>
+              </select> <input style=
+              "width: 175px; margin-left: -199px; margin-top: 1px; border: none; float: left;"
+              value='' name="cnt" id="cnt" />
+              <div style="float: left;">
+                <b>target:</b><br />
+                <input type="text" name="outXML" size="41"
+                value="Output file" />
+              </div><input type="radio" name="radio"
+              checked="checked" />Server (HTML)<br />
+              <input type="radio" name="radio" />Client
+              (XML-static)<br />
+              <input type="radio" name="radio" />Client
+              (XML-dynamic)<br />
+            </div>
+          </div>
+          <div class="columnright">
+            <h4>Console</h4>
+            <div id="res1m">
+              <div class="boxright">
+                <div class="boxrighttext">
+                  <b>N.B.</b> The output can be anything: a
+                  number, a string, an HTML fragment and a
+                  XML fragment well-formed or not.<br />
+                  <br />
+                  <i>Server: the output is send to browser
+                  'as is'.<br />
+                  Client: the browser shows the output
+                  code.</i>
+                </div>
+              </div>
+            </div>
+            <div id="res2m"></div>
+          </div><!-- footer -->
+          <hr style="clear: both" />
+        </div>
+      </div>
+    </div><!-- left -->
+    <div id="leftcolumn">
+      <div class="text">
+        <ul id="navlist">
+          <li><a href="http://www.o2xdl.org/" target=
+          "_blank"><font size="-1">o2xdl</font></a></li>
+          <li><a href=
+          "http://www.o2xdl.org/3.0/o2xdl-core.xsd.html"
+          target="_blank"><font size="-1">core
+          schema</font></a></li>
+          <li><a href=
+          "http://www.o2xdl.org/3.0/CORE/samples/" target=
+          "_blank"><font size="-1">online
+          samples</font></a></li>
+        </ul>
+        <div class="boxleft">
+          <div class="boxlefttext">
+            <b><i><span style=
+            "font-family: Monotype Corsiva; font-size: x-large">
+            R</span>ealize()</i> implemented using Jscript
+            + XSLT, ver. 3.0.</b><br />
+            Transforms an o2x:object, saves and shows
+            result.
+          </div>
+        </div>
+        <div class="boxleft">
+          <div class="boxlefttext">
+            <b>Input</b><br />
+            <div style="text-indent: 10px">
+              A <tt>.o2xSobj</tt> file or url
+            </div><b>Context</b><br />
+            <div style="text-indent: 10px">
+              A value accepted by the <tt>o2x:object</tt>
+            </div><b>Output</b><br />
+            <div style="text-indent: 10px">
+              A local file (<tt>*.html, *.xhtml,
+              *.xml,...</tt>)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<settings>
+		<label>realize</label>
+		<root_path>\</root_path>
+		<output_path>classes\</output_path>
+		<source_path>ms\utils\aarray\baseapp\filter\</source_path>
+		<jdkprofile_ref>JDK version 1.8.0_66</jdkprofile_ref>
+		<compiler_ref>&lt;Default&gt;</compiler_ref>
+		<ant_ref/>
+	</settings>
+	<ant_events/>
+	<run_items>
+		<item run="ms.utils.aarray.AArray"/>
+		<item run="ms.utils.aarray.baseapp.AABaseAppl"/>
+		<item run="xmlfilter"/>
+		<item run="jrealize"/>
+	</run_items>
+	<runtimes>
+		<runtime>
+			<label>&lt;Default&gt;</label>
+			<application_ref>&lt;Default&gt;</application_ref>
+			<applet_ref>&lt;Default&gt;</applet_ref>
+			<debugger_ref>&lt;Default&gt;</debugger_ref>
+			<param/>
+			<run>jrealize</run>
+			<verify>true</verify>
+		</runtime>
+		<runtime>
+			<label>realize</label>
+			<application_ref>&lt;Default&gt;</application_ref>
+			<applet_ref>&lt;Default&gt;</applet_ref>
+			<debugger_ref>&lt;Default&gt;</debugger_ref>
+			<param/>
+			<run>realize</run>
+			<verify>true</verify>
+		</runtime>
+	</runtimes>
+	<libraries/>
+	<files>
+		<include>
+			<folderitem>
+				<path>ms</path>
+			</folderitem>
+			<folderitem>
+				<path>ms\utils</path>
+			</folderitem>
+			<folderitem>
+				<path>ms\utils\aarray</path>
+			</folderitem>
+			<folderitem>
+				<path>ms\utils\aarray\baseapp</path>
+			</folderitem>
+			<folderitem>
+				<path>ms\utils\aarray\baseapp\filter</path>
+			</folderitem>
+			<fileitem>
+				<path>ms\utils\aarray\AArray.java</path>
+				<folder>ms\utils\aarray</folder>
+			</fileitem>
+			<fileitem>
+				<path>ms\utils\aarray\baseapp\AABaseAppl.java</path>
+				<folder>ms\utils\aarray\baseapp</folder>
+			</fileitem>
+			<fileitem>
+				<path>ms\utils\aarray\baseapp\filter\jrealize.java</path>
+				<folder>ms\utils\aarray\baseapp\filter</folder>
+			</fileitem>
+			<fileitem>
+				<path>ms\utils\aarray\baseapp\filter\xmlfilter.java</path>
+				<folder>ms\utils\aarray\baseapp\filter</folder>
+			</fileitem>
+			<fileitem>
+				<path>ms\utils\aarray\baseapp\filter\ZeroFilter.java</path>
+				<folder>ms\utils\aarray\baseapp\filter</folder>
+			</fileitem>
+		</include>
+		<exclude>
+			<folderitem>
+				<path>classes</path>
+				<dir/>
+			</folderitem>
+			<fileitem>
+				<path>jo2xtools.jar</path>
+			</fileitem>
+		</exclude>
+	</files>
+	<tasks/>
+</project>
