@@ -2,6 +2,6 @@ o2xdl is a definition language that allows you to define Object Oriented structu
 
 CORE uses a tree of o2x:object to represent complex data structures and to perform transformations on them. CORE is agnostic to the technology used to create the o2x:object tree.
 
-CORE reference: http://www.o2xdl.org/3.0/CORE/doc/core-02.html
+o2xdl CORE reference: http://www.o2xdl.org/3.0/CORE/doc/core-02.html
 
 In this repository last version of some tools used in o2xdl CORE.
